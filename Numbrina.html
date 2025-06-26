@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Numbrina 4 Dígitos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+      background: #f0f4f8;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    input[type="text"] {
+      font-size: 1.2em;
+      padding: 8px;
+      width: 150px;
+      margin-right: 10px;
+    }
+    button {
+      font-size: 1.2em;
+      padding: 8px 12px;
+    }
+    #tentativas {
+      margin-top: 20px;
+      background: white;
+      border-radius: 6px;
+      padding: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .tentativa-item {
+      padding: 4px 0;
+      border-bottom: 1px solid #eee;
+    }
+    #mensagem {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #006400;
+    }
+  </style>
+</head>
+<body>
+  <h1>Numbrina 4 Dígitos</h1>
+  <p>Digite um número de 4 dígitos:</p>
+  <input type="text" id="entrada" maxlength="4" />
+  <button id="botaoTentar">Tentar</button>
+  <div id="mensagem"></div>
+
+  <div id="tentativas">
+    <h3>Tentativas anteriores:</h3>
+    <div id="listaTentativas"></div>
+  </div>
+
+  <script>
+    // Gera número secreto de 4 dígitos (array)
+    function gerarNumeroSecreto() {
+      const num = Math.floor(Math.random() * 10000);
+      return num.toString().padStart(4, '0').split('').map(d => parseInt(d));
+    }
+
+    const numeroSecreto = gerarNumeroSecreto();
+    let tentativas = [];
+    let jogoAtivo = true;
+
+    const entradaEl = document.getElementById('entrada');
+    const botaoTentar = document.getElementById('botaoTentar');
+    const mensagemEl = document.getElementById('mensagem');
+    const listaTentativasEl = document.getElementById('listaTentativas');
+
+    function atualizarListaTentativas() {
+      listaTentativasEl.innerHTML = '';
+      tentativas.forEach((t, i) => {
+        const div = document.createElement('div');
+        div.classList.add('tentativa-item');
+        div.textContent = `${t.numero.join('')} = ${t.acertos} dígitos corretos`;
+        listaTentativasEl.appendChild(div);
+      });
+    }
+
+    function resetarJogo() {
+      tentativas = [];
+      jogoAtivo = true;
+      mensagemEl.textContent = '';
+      listaTentativasEl.innerHTML = '';
+      entradaEl.value = '';
+      entradaEl.disabled = false;
+      botaoTentar.disabled = false;
+    }
+
+    botaoTentar.addEventListener('click', () => {
+      if (!jogoAtivo) return;
+
+      const valor = entradaEl.value.trim();
+
+      if (valor.toLowerCase() === 'sair') {
+        mensagemEl.style.color = '#a00';
+        mensagemEl.textContent = 'Você saiu do jogo.';
+        entradaEl.disabled = true;
+        botaoTentar.disabled = true;
+        jogoAtivo = false;
+        return;
+      }
+
+      if (valor.length !== 4 || !/^\d{4}$/.test(valor)) {
+        mensagemEl.style.color = '#a00';
+        mensagemEl.textContent = '⚠️ Por favor, digite exatamente 4 dígitos!';
+        return;
+      }
+
+      const tentativaLista = valor.split('').map(d => parseInt(d));
+      let acertos = 0;
+
+      for (let i = 0; i < 4; i++) {
+        if (tentativaLista[i] === numeroSecreto[i]) {
+          acertos++;
+        }
+      }
+
+      tentativas.push({ numero: tentativaLista, acertos });
+      atualizarListaTentativas();
+
+      if (acertos === 4) {
+        mensagemEl.style.color = '#060';
+        mensagemEl.textContent = `🎉 Parabéns! Você acertou o número secreto: ${numeroSecreto.join('')} 🎉 Em ${tentativas.length} tentativas!`;
+        entradaEl.disabled = true;
+        botaoTentar.disabled = true;
+        jogoAtivo = false;
+      } else {
+        mensagemEl.style.color = '#000';
+        mensagemEl.textContent = `Você acertou ${acertos} dígito(s) na posição correta. Tente novamente!`;
+      }
+
+      entradaEl.value = '';
+      entradaEl.focus();
+    });
+
+    // Para facilitar, já foca no input ao carregar a página
+    entradaEl.focus();
+  </script>
+</body>
+</html>
